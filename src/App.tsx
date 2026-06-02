@@ -1,19 +1,49 @@
-// import { Search, Loader2, QrCode } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2, QrCode, Package, Clock, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { QRScanner } from './QRScanner';
+import { ProductsPage } from './ProductsPage';
+import { LanguageToggle } from './components/LanguageToggle';
+import { useLanguage } from './context/LanguageContext';
 
 function App() {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState('');
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [manualInput, setManualInput] = useState('');
+  const [currentPage, setCurrentPage] = useState<'home' | 'products'>('home');
+  const [lastUpload, setLastUpload] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lastUploadTime');
+    if (saved) {
+      setLastUpload(saved);
+    }
+  }, []);
+
+  const formatLastUpload = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
+  };
 
   const handleExplore = async (url?: string) => {
     const urlToUse = url || searchQuery;
 
     if (!urlToUse.trim()) {
-      setError('Please enter a search query ->');
+      setError(t('errors.default'));
       return;
     }
 
@@ -56,6 +86,10 @@ function App() {
         status: response.status,
         data: data
       }, null, 2));
+
+      const timestamp = new Date().toISOString();
+      setLastUpload(timestamp);
+      localStorage.setItem('lastUploadTime', timestamp);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -69,93 +103,145 @@ function App() {
     handleExplore(url);
   };
 
+  const handleManualSubmit = () => {
+    if (manualInput.trim()) {
+      setSearchQuery(manualInput);
+      setShowManualInput(false);
+      handleExplore(manualInput);
+      setManualInput('');
+    }
+  };
+
+  if (currentPage === 'products') {
+    return <ProductsPage onBack={() => setCurrentPage('home')} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-3xl">
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-6xl font-bold text-slate-900 tracking-tight">
-              Shop Smarter with
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600">
-                Data-Driven Insights ----AAABBB--
-              </span>
+    <div className="min-h-screen bg-warm-cream px-4 py-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-12">
+          <div>
+            <h1 className="text-5xl font-bold text-dark-brown tracking-tight">
+              {t('app.title')}
             </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Discover the best products backed by real analytics and customer intelligence
+            <p className="text-muted-taupe text-lg mt-2">
+              {t('app.subtitle')}
             </p>
           </div>
 
-          <div className="relative max-w-2xl mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleExplore()}
-                placeholder="Search for products, trends, or insights..."
-                className="w-full px-6 py-5 pl-14 text-lg rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 shadow-lg hover:shadow-xl"
-                disabled={isLoading}
-              />
-              {/* <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6" /> */}
+          <div className="flex items-center gap-4">
+            <LanguageToggle />
+            <button
+              onClick={() => setCurrentPage('products')}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-6 py-3 bg-soft-olive text-white font-semibold rounded-lg hover:bg-deep-olive disabled:bg-warm-gray transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <Package className="w-5 h-5" />
+              <span>{t('navigation.checkProducts')}</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-soft-beige rounded-2xl shadow-lg p-8 space-y-8 border border-warm-gray">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-dark-brown mb-2">{t('home.addNewData')}</h2>
+              <p className="text-muted-taupe">{t('home.chooseInputMethod')}</p>
             </div>
-            <div className="mt-4 flex gap-3 justify-center">
-              <button
-                onClick={() => handleExplore()}
-                disabled={isLoading}
-                className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:bg-blue-400 transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                      {/* <Loader2 className="w-5 h-5 animate-spin" /> */}
-                      Processing...
-                  </>
-                ) : (
-                  'Start Exploring'
-                )}
-              </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => setShowQRScanner(true)}
                 disabled={isLoading}
-                className="px-6 py-3 bg-slate-800 text-white font-semibold rounded-xl hover:bg-slate-900 disabled:bg-slate-600 transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-warm-gray rounded-xl hover:border-soft-olive hover:bg-light-sand disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group"
               >
-                {/* <QrCode className="w-5 h-5" /> */}
-                <span className="hidden sm:inline">Scan QR</span>
+                <QrCode className="w-10 h-10 text-muted-taupe group-hover:text-soft-olive transition-colors" />
+                <span className="font-semibold text-dark-brown group-hover:text-soft-olive transition-colors">{t('home.scanQRCode')}</span>
+                <span className="text-xs text-muted-taupe text-center">{t('home.scanQRCodeDesc')}</span>
+              </button>
+
+              <button
+                onClick={() => setShowManualInput(!showManualInput)}
+                disabled={isLoading}
+                className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-warm-gray rounded-xl hover:border-soft-olive hover:bg-light-sand disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center text-muted-taupe group-hover:text-soft-olive transition-colors font-bold text-lg">≡</div>
+                <span className="font-semibold text-dark-brown group-hover:text-soft-olive transition-colors">{t('home.enterManually')}</span>
+                <span className="text-xs text-muted-taupe text-center">{t('home.enterManuallyDesc')}</span>
               </button>
             </div>
 
-            {error && (
-              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {error}
+            {showManualInput && (
+              <div className="space-y-3 p-4 bg-light-sand rounded-lg border border-warm-gray animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold text-dark-brown">{t('home.pasteData')}</label>
+                  <button
+                    onClick={() => {
+                      setShowManualInput(false);
+                      setManualInput('');
+                    }}
+                    className="text-muted-taupe hover:text-dark-brown"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <textarea
+                  value={manualInput}
+                  onChange={(e) => setManualInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                      handleManualSubmit();
+                    }
+                  }}
+                  placeholder={t('home.placeholder')}
+                  className="w-full px-4 py-3 border-2 border-warm-gray rounded-lg bg-warm-cream text-dark-brown placeholder-muted-taupe focus:border-soft-olive focus:outline-none focus:ring-2 focus:ring-soft-olive focus:ring-opacity-30 resize-none"
+                  rows={4}
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleManualSubmit}
+                  disabled={isLoading || !manualInput.trim()}
+                  className="w-full px-4 py-2 bg-soft-olive text-white font-semibold rounded-lg hover:bg-deep-olive disabled:bg-warm-gray disabled:text-muted-taupe disabled:cursor-not-allowed transition-colors"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                      {t('home.processing')}
+                    </>
+                  ) : (
+                    t('home.submit')
+                  )}
+                </button>
               </div>
             )}
 
-            <div className="mt-6 p-4 bg-slate-100 border border-slate-200 rounded-lg">
-              <h3 className="text-xs font-semibold text-slate-700 mb-3 uppercase tracking-wide">Debug Response</h3>
-              {!result && !error && (
-                <div className="text-slate-500 text-sm">No response yet. Enter a URL and click the button.</div>
-              )}
-              {result && (
-                <div className="bg-slate-900 text-slate-100 rounded p-3 text-left text-xs overflow-auto max-h-96 font-mono border border-slate-700">
-                  <pre>{result}</pre>
+            {error && (
+              <div className="p-4 bg-tomato-red bg-opacity-10 border border-tomato-red rounded-lg text-tomato-red text-sm flex items-start gap-3">
+                <div className="flex-1">{error}</div>
+                <button onClick={() => setError('')} className="text-tomato-red hover:text-deep-olive">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {result && (
+              <div className="space-y-3">
+                <div className="p-4 bg-light-sand border border-warm-gray rounded-lg">
+                  <h3 className="text-xs font-semibold text-muted-taupe mb-3 uppercase tracking-wide">{t('home.response')}</h3>
+                  <div className="bg-dark-brown text-warm-cream rounded p-3 text-left text-xs overflow-auto max-h-96 font-mono border border-dark-brown">
+                    <pre>{result}</pre>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center justify-center gap-12 pt-8 text-sm text-slate-500">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900">10M+</div>
-              <div>Products Analyzed</div>
+          {lastUpload && (
+            <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-taupe">
+              <Clock className="w-4 h-4" />
+              <span>{t('home.lastUpload')} <span className="font-semibold text-dark-brown">{formatLastUpload(lastUpload)}</span></span>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900">500K+</div>
-              <div>Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900">99%</div>
-              <div>Satisfaction Rate</div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
