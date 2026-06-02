@@ -1,0 +1,52 @@
+{
+  "app": {
+    "title": "Receipt Intelligence",
+    "subtitle": "Track your products with QR codes and manual entry"
+  },
+  "navigation": {
+    "checkProducts": "Check Products",
+    "back": "Back"
+  },
+  "home": {
+    "addNewData": "Add New Data",
+    "chooseInputMethod": "Choose how you'd like to input your receipt information",
+    "scanQRCode": "Scan QR Code",
+    "scanQRCodeDesc": "Use your camera to scan receipt codes",
+    "enterManually": "Enter Manually",
+    "enterManuallyDesc": "Paste or type receipt content",
+    "pasteData": "Paste or type your data:",
+    "placeholder": "Paste your receipt URL or content here...",
+    "submit": "Submit",
+    "processing": "Processing...",
+    "lastUpload": "Last upload:",
+    "response": "Response"
+  },
+  "products": {
+    "title": "Registered Products",
+    "totalProducts": "Total products:",
+    "page": "Page",
+    "of": "of",
+    "productName": "Product Name",
+    "productCode": "Product Code",
+    "store": "Store",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "totalValue": "Total Value",
+    "purchaseDate": "Purchase Date",
+    "loading": "Loading products...",
+    "noProducts": "No products found.",
+    "showing": "Showing",
+    "products": "products",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "qr": {
+    "title": "Scan QR Code",
+    "pointCamera": "Point your camera at a QR code",
+    "cameraAccessFailed": "Camera access failed",
+    "scanned": "Scanned:"
+  },
+  "errors": {
+    "default": "An error occurred. Please try again."
+  }
+}

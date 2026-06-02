@@ -1,0 +1,52 @@
+{
+  "app": {
+    "title": "Inteligência de Recibos",
+    "subtitle": "Rastreie seus produtos com códigos QR e entrada manual"
+  },
+  "navigation": {
+    "checkProducts": "Verificar Produtos",
+    "back": "Voltar"
+  },
+  "home": {
+    "addNewData": "Adicionar Novos Dados",
+    "chooseInputMethod": "Escolha como gostaria de inserir as informações da sua recibo",
+    "scanQRCode": "Digitalizar Código QR",
+    "scanQRCodeDesc": "Use sua câmera para digitalizar códigos de recibo",
+    "enterManually": "Inserir Manualmente",
+    "enterManuallyDesc": "Cole ou digite o conteúdo da recibo",
+    "pasteData": "Cole ou digite seus dados:",
+    "placeholder": "Cole o URL ou conteúdo da sua recibo aqui...",
+    "submit": "Enviar",
+    "processing": "Processando...",
+    "lastUpload": "Último upload:",
+    "response": "Resposta"
+  },
+  "products": {
+    "title": "Produtos Registrados",
+    "totalProducts": "Total de produtos:",
+    "page": "Página",
+    "of": "de",
+    "productName": "Nome do Produto",
+    "productCode": "Código do Produto",
+    "store": "Loja",
+    "quantity": "Quantidade",
+    "unit": "Unidade",
+    "totalValue": "Valor Total",
+    "purchaseDate": "Data de Compra",
+    "loading": "Carregando produtos...",
+    "noProducts": "Nenhum produto encontrado.",
+    "showing": "Mostrando",
+    "products": "produtos",
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
+  "qr": {
+    "title": "Digitalizar Código QR",
+    "pointCamera": "Aponte sua câmera para um código QR",
+    "cameraAccessFailed": "Falha no acesso da câmera",
+    "scanned": "Digitalizado:"
+  },
+  "errors": {
+    "default": "Ocorreu um erro. Tente novamente."
+  }
+}
